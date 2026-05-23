@@ -1,1 +1,717 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ақ жол! Соңғы қоңырау — 25 Мамыр</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Montserrat және Playfair Display қазақ тілінің кириллицасын толық қолдаумен -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght=300;400;500;600;700&family=Playfair+Display:ital,wght=0,500;0,700;1,600&display=swap&subset=cyrillic,cyrillic-ext" rel="stylesheet">
+    <!-- FontAwesome иконкалары -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        burgundy: {
+                            50: '#fdf2f4',
+                            100: '#fbe6e9',
+                            200: '#f7cfd6',
+                            300: '#f0adb9',
+                            400: '#e37f93',
+                            500: '#d1536f',
+                            600: '#bc3756',
+                            700: '#9d243f',
+                            800: '#822036',
+                            900: '#4c0e1a', // Терең шие түсі
+                            950: '#2d050d',
+                        },
+                        gold: {
+                            100: '#FFF7E6',
+                            300: '#FFE099',
+                            500: '#D4AF37', // Алтын түс
+                            600: '#B8901C',
+                            700: '#8C6C10',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Бірқалыпты айналдыру */
+        html {
+            scroll-behavior: smooth;
+        }
 
+        /* Арнайы скроллбар */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2d050d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #822036;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d4af37;
+        }
+
+        /* Алтын жарқыл эффектісі */
+        @keyframes goldGlow {
+            0%, 100% { text-shadow: 0 0 10px rgba(212, 175, 55, 0.4), 0 0 20px rgba(212, 175, 55, 0.2); }
+            50% { text-shadow: 0 0 20px rgba(212, 175, 55, 0.8), 0 0 35px rgba(212, 175, 55, 0.4); }
+        }
+        .glow-gold {
+            animation: goldGlow 3s infinite ease-in-out;
+        }
+
+        /* Қоңыраудың тербелуі */
+        @keyframes ring-bell {
+            0%, 100% { transform: rotate(0); }
+            20% { transform: rotate(15deg); }
+            40% { transform: rotate(-15deg); }
+            60% { transform: rotate(10deg); }
+            80% { transform: rotate(-10deg); }
+        }
+        .animate-bell-ring {
+            animation: ring-bell 1.5s ease-in-out;
+            transform-origin: top center;
+        }
+
+        /* Артқы фондағы бұлыңғыр сфералар */
+        .blur-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.35;
+            pointer-events: none;
+            mix-blend-mode: screen;
+            animation: floatOrb 12s infinite ease-in-out alternate;
+        }
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, 30px) scale(1.2); }
+        }
+
+        /* Шыны панельдер (Glassmorphism) */
+        .glass-panel {
+            background: rgba(45, 5, 13, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Слайдтардың ауысу эффектісі */
+        .slide-transition {
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-[#1e0308] text-pink-50 font-sans min-h-screen relative overflow-x-hidden">
+
+    <!-- Анимациялық артқы фон -->
+    <div class="blur-orb bg-burgundy-600 w-96 h-96 top-10 left-10"></div>
+    <div class="blur-orb bg-gold-600 w-80 h-80 top-1/3 right-10" style="animation-delay: -3s;"></div>
+    <div class="blur-orb bg-burgundy-800 w-[500px] h-[500px] bottom-10 left-1/4" style="animation-delay: -6s;"></div>
+
+    <!-- Ұшқындар мен жапырақтарға арналған интерактивті холст -->
+    <canvas id="particlesCanvas" class="absolute inset-0 pointer-events-none z-10 w-full h-full"></canvas>
+
+    <!-- Басты экран -->
+    <section id="home" class="relative z-20 pt-12 pb-16 px-4 text-center max-w-5xl mx-auto space-y-8">
+        <div class="space-y-4">
+            <!-- 11 "Ә" сыныбының салтанатты белгісі -->
+            <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-burgundy-900/90 border border-gold-500/40 text-xs md:text-sm font-bold uppercase tracking-widest text-gold-500 shadow-lg shadow-gold-500/5 animate-pulse">
+                <i class="fa-solid fa-graduation-cap text-gold-400"></i> 11 «Ә» сыныбы
+            </div>
+            
+            <div class="space-y-2">
+                <span class="inline-block text-[10px] md:text-xs font-semibold uppercase tracking-widest text-pink-200/60">
+                    Мектеппен қоштасу салтанатты күні
+                </span>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-serif font-bold tracking-tight text-white leading-tight">
+                    Соңғы Қоңырау — <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-500 to-amber-600 glow-gold">25 Мамыр</span>
+                </h1>
+            </div>
+            <p class="text-xs md:text-sm text-pink-100/70 max-w-xl mx-auto leading-relaxed">
+                Ұлы жаңалықтар, адал достар мен ұмытылмас сабақтар уақыты. Қош бол, сүйікті мектебім! Сәлем, үлкен өмір!
+            </p>
+        </div>
+
+        <!-- Бейнебаян контейнері -->
+        <div id="video-container" class="glass-panel rounded-2xl p-3 md:p-5 shadow-2xl relative group overflow-hidden max-w-4xl mx-auto transition-all duration-700">
+            <!-- Алтын бұрыштар -->
+            <div class="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-gold-500 rounded-tl-xl"></div>
+            <div class="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-gold-500 rounded-tr-xl"></div>
+            <div class="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-gold-500 rounded-bl-xl"></div>
+            <div class="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-gold-500 rounded-br-xl"></div>
+
+            <!-- Бейне ойнатқыш -->
+            <div 
+                id="video-wrapper" 
+                class="relative rounded-xl overflow-hidden bg-black/40 shadow-inner mx-auto transition-all duration-700 max-h-[75vh] w-full"
+                style="aspect-ratio: 16/9;"
+            >
+                <!-- Бейнені бастау экраны -->
+                <div 
+                    id="video-overlay" 
+                    class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-burgundy-950/85 backdrop-blur-md cursor-pointer transition-all duration-500 hover:bg-burgundy-950/75 select-none"
+                    onclick="startVideo()"
+                >
+                    <div class="w-20 h-20 rounded-full bg-gold-500/20 border-2 border-gold-500 flex items-center justify-center text-gold-500 text-3xl mb-4 animate-pulse shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-110 transition-transform duration-300">
+                        <i class="fa-solid fa-play ml-1.5"></i>
+                    </div>
+                    <h3 class="text-white font-serif font-bold text-lg md:text-2xl tracking-wide glow-gold">Бейнені қосу</h3>
+                    <p class="text-[10px] md:text-xs text-pink-100/50 mt-2">Дыбыс пен бейнені қосу үшін кез келген жерді басыңыз</p>
+                </div>
+
+                <video 
+                    id="main-video"
+                    class="w-full h-full object-contain" 
+                    controls
+                    preload="metadata"
+                    playsinline
+                    poster="https://github.com/dimurs1lim/11/raw/refs/heads/main/IMG-20260522-WA0040.jpg"
+                >
+                    <source src="https://github.com/dimurs1lim/11/raw/refs/heads/main/VID-20260522-WA0038.mp4" type="video/mp4">
+                    Сіздің браузеріңіз бұл бейнені қолдамайды.
+                </video>
+            </div>
+        </div>
+
+        <!-- Басқару батырмалары -->
+        <div class="pt-2 flex flex-wrap justify-center gap-4">
+            <a href="#bell" class="px-6 py-3.5 rounded-full bg-gradient-to-r from-burgundy-700 to-burgundy-900 text-white text-xs font-semibold shadow-lg hover:shadow-burgundy-500/20 hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2">
+                <i class="fa-solid fa-bell text-gold-500 animate-bounce"></i> Қоңырау соғу
+            </a>
+            <a href="#gallery-section" class="px-6 py-3.5 rounded-full bg-transparent border border-white/15 hover:border-gold-500/40 hover:bg-white/5 text-pink-100 text-xs font-semibold hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2">
+                Фотосуреттерді көру <i class="fa-solid fa-arrow-down text-gold-500"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Интерактивті секция: Мектеп қоңырауы -->
+    <section id="bell" class="relative z-20 py-20 px-4 text-center">
+        <div class="max-w-3xl mx-auto glass-panel rounded-3xl p-8 md:p-12 relative overflow-hidden">
+            <!-- Фондық жарықтар -->
+            <div class="absolute -top-24 -left-24 w-48 h-48 bg-gold-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-burgundy-500/20 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10 space-y-6">
+                <h3 class="text-2xl md:text-3xl font-serif font-bold text-white">Өз соңғы қоңырауыңды соқ!</h3>
+                <p class="text-pink-100/70 text-sm md:text-base max-w-lg mx-auto">
+                    Жаңа үлкен өмірдің басталуының символы.
+                </p>
+
+                <!-- Басылатын қоңырау -->
+                <div class="py-8 flex justify-center items-center">
+                    <button 
+                        id="interactiveBell"
+                        class="focus:outline-none transition-all duration-300 hover:scale-110 active:scale-95"
+                        onclick="triggerBellRing()"
+                        aria-label="Қоңырау соғу"
+                    >
+                        <div class="relative flex items-center justify-center w-40 h-40 bg-gradient-to-b from-burgundy-900/60 to-burgundy-950/80 rounded-full border border-gold-500/30 shadow-2xl hover:border-gold-500/80 transition-all duration-500">
+                            <!-- Пульсация эффектісі -->
+                            <div class="absolute inset-0 rounded-full bg-gold-500/5 animate-ping opacity-75"></div>
+                            
+                            <!-- Қоңырау белгішесі -->
+                            <svg 
+                                id="bellSvg" 
+                                class="w-20 h-20 text-gold-500 drop-shadow-[0_4px_10px_rgba(212,175,55,0.5)]" 
+                                fill="currentColor" 
+                                viewBox="0 0 24 24"
+                            >
+                                <path d="M12 2C10.34 2 9 3.34 9 5v1.09C6.17 6.6 4 9.05 4 12v5l-2 2v1h20v-1l-2-2v-5c0-2.95-2.17-5.4-5-5.91V5c0-1.66-1.34-3-3-3zm0 20c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z"/>
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Естеліктер галереясы -->
+    <section id="gallery-section" class="relative z-20 py-24 px-4 bg-gradient-to-b from-transparent via-[#2d050d] to-transparent">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 space-y-4">
+                <span class="text-gold-500 text-sm font-semibold tracking-widest uppercase">Жадта сақтаймыз</span>
+                <h2 class="text-3xl md:text-5xl font-serif font-bold text-white">Естеліктер галереясы</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto"></div>
+                <p class="text-sm md:text-base text-pink-100/60 max-w-xl mx-auto">
+                    Біздің сүйікті бейнелерімізді, мектеп күндері мен мерекелердің жарқын сәттерін парақтаңыз. Әрбір сурет — бір тарих!
+                </p>
+            </div>
+
+            <!-- Слайдер -->
+            <div 
+                id="gallery-slider-container" 
+                class="glass-panel rounded-3xl p-4 md:p-6 shadow-2xl relative max-w-4xl mx-auto opacity-0 translate-y-16 scale-95 transition-all duration-1000 ease-out transform"
+                data-scroll-reveal
+            >
+                <!-- Слайдердің алтын бұрыштары -->
+                <div class="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-gold-500 rounded-tl-2xl"></div>
+                <div class="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-gold-500 rounded-tr-2xl"></div>
+                <div class="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-gold-500 rounded-bl-2xl"></div>
+                <div class="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-gold-500 rounded-br-2xl"></div>
+
+                <!-- Слайдер терезесі -->
+                <div 
+                    id="slider-wrapper" 
+                    class="relative rounded-2xl overflow-hidden bg-black/40 shadow-inner mx-auto transition-all duration-700 w-full flex items-center justify-center"
+                    style="aspect-ratio: 4/3; max-height: 70vh;"
+                >
+                    <!-- Слайд 1 -->
+                    <div class="slide absolute inset-0 w-full h-full flex items-center justify-center opacity-100 z-10 slide-transition" data-slide-index="0" data-tag="текст 1" data-title="Алғашқы қоңырау" data-desc="текст.">
+                        <img 
+                            src="https://github.com/dimurs1lim/11/raw/refs/heads/main/IMG-20260522-WA0040.jpg" 
+                            alt="Алғашқы қоңырау" 
+                            class="w-full h-full object-contain"
+                            onload="onSlideImageLoad(this, 0)"
+                            onerror="handleImageError(this, 'Алғашқы қоңырау', 'Бәрі басталған күн...')"
+                        >
+                    </div>
+
+                    <!-- Слайд 2 -->
+                    <div class="slide absolute inset-0 w-full h-full flex items-center justify-center opacity-0 pointer-events-none z-0 slide-transition" data-slide-index="1" data-tag="Күнделікті өмір" data-title="текст 2" data-desc="текст.">
+                        <img 
+                            src="https://github.com/dimurs1lim/11/raw/refs/heads/main/IMG-20260522-WA0039.jpg" 
+                            alt="Мектеп күндері" 
+                            class="w-full h-full object-contain"
+                            onload="onSlideImageLoad(this, 1)"
+                            onerror="handleImageError(this, 'Мектеп жылдары', 'Қызықты сабақтар мен шулы үзілістер')"
+                        >
+                    </div>
+
+                    <!-- Слайд 3 -->
+                    <div class="slide absolute inset-0 w-full h-full flex items-center justify-center opacity-0 pointer-events-none z-0 slide-transition" data-slide-index="2" data-tag="Алғыс" data-title="текст 3" data-desc="текст.">
+                        <img 
+                            src="https://github.com/dimurs1lim/11/raw/refs/heads/main/IMG-20260522-WA0041.jpg" 
+                            alt="Ұстаздарымыз" 
+                            class="w-full h-full object-contain"
+                            onload="onSlideImageLoad(this, 2)"
+                            onerror="handleImageError(this, 'Сүйікті ұстаздар', 'Төзімділік пен қамқорлық үшін рақмет')"
+                        >
+                    </div>
+
+                    <!-- Слайд 4 -->
+                    <div class="slide absolute inset-0 w-full h-full flex items-center justify-center opacity-0 pointer-events-none z-0 slide-transition" data-slide-index="3" data-tag="Жаңа өмір" data-title="текст 4" data-desc="текст">
+                        <img 
+                            src="https://github.com/dimurs1lim/11/raw/refs/heads/main/IMG-20260522-WA0042.jpg" 
+                            alt="Түлектер кеші" 
+                            class="w-full h-full object-contain"
+                            onload="onSlideImageLoad(this, 3)"
+                            onerror="handleImageError(this, 'Түлектер кеші', 'Алдымызда үлкен өмір күтіп тұр!')"
+                        >
+                    </div>
+
+                    <!-- Бағыттауыш батырмалар -->
+                    <button onclick="prevSlide()" class="absolute left-4 z-30 w-11 h-11 rounded-full bg-burgundy-950/80 border border-gold-500/20 text-gold-500 flex items-center justify-center hover:bg-gold-500 hover:text-burgundy-950 transition-all duration-300 shadow-lg active:scale-95" aria-label="Алдыңғы слайд">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button onclick="nextSlide()" class="absolute right-4 z-30 w-11 h-11 rounded-full bg-burgundy-950/80 border border-gold-500/20 text-gold-500 flex items-center justify-center hover:bg-gold-500 hover:text-burgundy-950 transition-all duration-300 shadow-lg active:scale-95" aria-label="Келесі слайд">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Сипаттама мәтіні -->
+                <div class="mt-6 text-center space-y-2 px-4 transition-all duration-500">
+                    <span id="slider-tag" class="text-xs text-gold-500 uppercase tracking-widest font-semibold block">Біздің сынып</span>
+                    <h4 id="slider-title" class="text-xl md:text-2xl font-serif font-bold text-white">Алғашқы қоңырау</h4>
+                    <p id="slider-desc" class="text-xs md:text-sm text-pink-100/70 max-w-xl mx-auto leading-relaxed">Біздің ұлы жолымыздың бастауы, білім әлеміне жасаған алғашқы қадамдарымыз.</p>
+                </div>
+
+                <!-- Индикаторлар (нүктелер) -->
+                <div class="flex justify-center items-center gap-2 mt-6">
+                    <button onclick="goToSlide(0)" class="slider-dot w-2.5 h-2.5 rounded-full bg-gold-500/10 border border-gold-500/30 transition-all duration-300" data-dot-index="0"></button>
+                    <button onclick="goToSlide(1)" class="slider-dot w-2.5 h-2.5 rounded-full bg-gold-500/10 border border-gold-500/30 transition-all duration-300" data-dot-index="1"></button>
+                    <button onclick="goToSlide(2)" class="slider-dot w-2.5 h-2.5 rounded-full bg-gold-500/10 border border-gold-500/30 transition-all duration-300" data-dot-index="2"></button>
+                    <button onclick="goToSlide(3)" class="slider-dot w-2.5 h-2.5 rounded-full bg-gold-500/10 border border-gold-500/30 transition-all duration-300" data-dot-index="3"></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Сайттың төменгі бөлігі (Подвал) -->
+    <footer class="relative z-20 border-t border-white/5 bg-burgundy-950 py-12 px-6 text-center">
+        <div class="max-w-4xl mx-auto space-y-6">
+            <h2 class="text-2xl md:text-3xl font-serif font-bold text-gold-500 tracking-wider">Қош бол, Мектеп!</h2>
+            
+            <div class="pt-6 border-t border-white/5 text-[10px] text-pink-100/30 uppercase tracking-widest">
+                © 2026 Түлектер сыныбы.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Интерактивті скрипттер -->
+    <script>
+        // Бейнені іске қосу
+        function startVideo() {
+            const video = document.getElementById('main-video');
+            const overlay = document.getElementById('video-overlay');
+            if (video && overlay) {
+                video.play().then(() => {
+                    overlay.classList.add('opacity-0', 'pointer-events-none');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                    }, 500);
+                }).catch(err => {
+                    console.log("Дыбысы бар бейнені автоматты түрде қосуға браузер рұқсат бермеді. Дыбыссыз қосылады:", err);
+                    video.muted = true;
+                    video.play();
+                    overlay.classList.add('opacity-0', 'pointer-events-none');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                    }, 500);
+                });
+            }
+        }
+
+        // Суреттердің қатесін өңдеуші резервтік функция
+        function handleImageError(img, title, desc) {
+            img.style.opacity = '0';
+            img.dataset.failed = "true";
+            
+            const parent = img.parentNode;
+            
+            const oldPlaceholder = parent.querySelector('.placeholder-card');
+            if (oldPlaceholder) oldPlaceholder.remove();
+            
+            const placeholder = document.createElement('div');
+            placeholder.className = "placeholder-card absolute inset-0 flex flex-col justify-center items-center p-6 text-center bg-gradient-to-br from-burgundy-900 to-burgundy-950 text-pink-100/80 border-b border-gold-500/10 z-20 pointer-events-none";
+            placeholder.innerHTML = `
+                <div class="w-16 h-16 rounded-full bg-gold-500/10 flex items-center justify-center text-gold-500 mb-4 animate-pulse">
+                    <i class="fa-regular fa-image text-2xl"></i>
+                </div>
+                <h5 class="font-serif font-bold text-base text-gold-300 mb-1">${title}</h5>
+                <p class="text-xs text-pink-100/50 max-w-xs leading-relaxed">${desc}</p>
+            `;
+            
+            parent.appendChild(placeholder);
+            
+            const currentSlideIndex = parseInt(parent.dataset.slideIndex || "0");
+            if (currentSlideIndex === currentSlide) {
+                applySliderDimensions(4/3);
+            }
+        }
+
+        // --- СЛАЙДЕР ЛОГИКАСЫ ---
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.slider-dot');
+        const sliderWrapper = document.getElementById('slider-wrapper');
+        const sliderContainer = document.getElementById('gallery-slider-container');
+
+        function onSlideImageLoad(img, index) {
+            img.dataset.failed = "false";
+            img.dataset.ratio = img.naturalWidth / img.naturalHeight;
+            
+            if (index === currentSlide) {
+                applySliderDimensions(img.dataset.ratio);
+            }
+        }
+
+        function applySliderDimensions(ratio) {
+            if (!sliderWrapper || !sliderContainer) return;
+            
+            sliderWrapper.style.aspectRatio = ratio;
+
+            if (ratio < 0.9) {
+                // Вертикальды сурет
+                sliderContainer.style.maxWidth = "450px";
+            } else if (Math.abs(ratio - 1) < 0.15) {
+                // Квадрат сурет
+                sliderContainer.style.maxWidth = "620px";
+            } else {
+                // Горизонтальды сурет
+                sliderContainer.style.maxWidth = "896px";
+            }
+        }
+
+        function showSlide(index) {
+            if (index >= slides.length) currentSlide = 0;
+            else if (index < 0) currentSlide = slides.length - 1;
+            else currentSlide = index;
+
+            slides.forEach((slide, idx) => {
+                if (idx === currentSlide) {
+                    slide.classList.remove('opacity-0', 'pointer-events-none', 'z-0');
+                    slide.classList.add('opacity-100', 'z-10');
+                    
+                    document.getElementById('slider-tag').innerText = slide.dataset.tag;
+                    document.getElementById('slider-title').innerText = slide.dataset.title;
+                    document.getElementById('slider-desc').innerText = slide.dataset.desc;
+
+                    const img = slide.querySelector('img');
+                    if (img && img.dataset.failed !== "true" && img.dataset.ratio) {
+                        applySliderDimensions(parseFloat(img.dataset.ratio));
+                    } else {
+                        applySliderDimensions(4/3);
+                    }
+                } else {
+                    slide.classList.remove('opacity-100', 'z-10');
+                    slide.classList.add('opacity-0', 'pointer-events-none', 'z-0');
+                }
+            });
+
+            dots.forEach((dot, idx) => {
+                if (idx === currentSlide) {
+                    dot.className = "slider-dot w-6 h-2.5 rounded-full bg-gold-500 border border-gold-500 transition-all duration-300";
+                } else {
+                    dot.className = "slider-dot w-2.5 h-2.5 rounded-full bg-gold-500/10 border border-gold-500/30 transition-all duration-300";
+                }
+            });
+        }
+
+        function nextSlide() { showSlide(currentSlide + 1); }
+        function prevSlide() { showSlide(currentSlide - 1); }
+        function goToSlide(index) { showSlide(index); }
+
+        // Мобильді свайптар
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        sliderWrapper.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        sliderWrapper.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            if (touchStartX - touchEndX > 50) {
+                nextSlide();
+            }
+            if (touchEndX - touchStartX > 50) {
+                prevSlide();
+            }
+        }
+
+        showSlide(0);
+
+        // --- ДЫБЫСТЫ БАПТАУ ---
+        function playBellSound() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                
+                const ctx = new AudioContext();
+                const now = ctx.currentTime;
+                const frequencies = [440, 554.37, 659.25, 880, 1200, 1500];
+                
+                frequencies.forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    
+                    osc.type = i === 0 ? 'sine' : 'triangle';
+                    osc.frequency.value = freq;
+                    
+                    gainNode.gain.setValueAtTime(0, now);
+                    gainNode.gain.linearRampToValueAtTime(0.15 / (i + 1), now + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 2.5 + (i * 0.2));
+                    
+                    osc.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    
+                    osc.start(now);
+                    osc.stop(now + 3.5);
+                });
+            } catch (e) {
+                console.log("AudioContext қолданылмайды.");
+            }
+        }
+
+        // --- ИНТЕРАКТИВТІ ҚОҢЫРАУ ШАЛУ ---
+        let bellRinging = false;
+        function triggerBellRing() {
+            const bellSvg = document.getElementById('bellSvg');
+            if (!bellSvg || bellRinging) return;
+
+            bellRinging = true;
+            bellSvg.classList.add('animate-bell-ring');
+            
+            playBellSound();
+            triggerSparksBurst();
+
+            setTimeout(() => {
+                bellSvg.classList.remove('animate-bell-ring');
+                bellRinging = false;
+            }, 1500);
+        }
+
+        // --- КЕНЕПТЕГІ ҰШҚЫНДАР ЭФФЕКТІСІ (CANVAS) ---
+        const canvas = document.getElementById('particlesCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        
+        function createParticle(isInitial) {
+            return {
+                x: Math.random() * (canvas.width || window.innerWidth),
+                y: isInitial ? Math.random() * (canvas.height || document.documentElement.scrollHeight) : -20,
+                size: Math.random() * 2.5 + 1,
+                speedX: (Math.random() - 0.5) * 0.5,
+                speedY: Math.random() * 0.6 + 0.3,
+                opacity: Math.random() * 0.6 + 0.2,
+                color: Math.random() > 0.45 ? '#D4AF37' : '#f7cfd6',
+                swing: Math.random() * 0.01 + 0.005,
+                swingOffset: Math.random() * 360,
+                isSpark: false
+            };
+        }
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = document.documentElement.scrollHeight;
+        }
+        
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+        
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            
+            const mainVideo = document.getElementById('main-video');
+            const videoWrapper = document.getElementById('video-wrapper');
+            const videoContainer = document.getElementById('video-container');
+            
+            if (mainVideo && videoWrapper && videoContainer) {
+                const adjustVideoSize = () => {
+                    const width = mainVideo.videoWidth;
+                    const height = mainVideo.videoHeight;
+                    if (width && height) {
+                        const ratio = width / height;
+                        videoWrapper.style.aspectRatio = `${width} / ${height}`;
+                        
+                        if (ratio < 0.9) {
+                            videoContainer.style.maxWidth = "420px";
+                            videoWrapper.style.maxWidth = "100%";
+                        } else if (Math.abs(ratio - 1) < 0.15) {
+                            videoContainer.style.maxWidth = "600px";
+                            videoWrapper.style.maxWidth = "100%";
+                        } else {
+                            videoContainer.style.maxWidth = "896px";
+                            videoWrapper.style.maxWidth = "100%";
+                        }
+                    }
+                };
+
+                if (mainVideo.readyState >= 1) {
+                    adjustVideoSize();
+                } else {
+                    mainVideo.addEventListener('loadedmetadata', adjustVideoSize);
+                }
+            }
+
+            for (let i = 0; i < 70; i++) {
+                particles.push(createParticle(true));
+            }
+            animateParticles();
+
+            // Элементтердің ашылу анимациясы
+            const observerOptions = {
+                root: null,
+                threshold: 0.1,
+                rootMargin: '0px 0px -40px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.remove('opacity-0', 'translate-y-16', 'scale-95');
+                        entry.target.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            const revealElements = document.querySelectorAll('[data-scroll-reveal]');
+            revealElements.forEach(el => observer.observe(el));
+        });
+
+        function triggerSparksBurst() {
+            const rect = document.getElementById('interactiveBell').getBoundingClientRect();
+            const scrollY = window.scrollY;
+            const originX = rect.left + rect.width / 2;
+            const originY = rect.top + rect.height / 2 + scrollY;
+
+            for (let i = 0; i < 60; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const force = Math.random() * 8 + 3;
+                particles.push({
+                    x: originX,
+                    y: originY,
+                    size: Math.random() * 4 + 1.5,
+                    speedX: Math.cos(angle) * force,
+                    speedY: Math.sin(angle) * force - 2,
+                    opacity: 1,
+                    color: Math.random() > 0.3 ? '#D4AF37' : '#FFE099',
+                    swing: 0,
+                    swingOffset: 0,
+                    isSpark: true,
+                    life: 1.0
+                });
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+
+                if (p.isSpark) {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    p.speedY += 0.08;
+                    p.speedX *= 0.98;
+                    p.life -= 0.015;
+                    p.opacity = p.life;
+
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    if (p.life <= 0) {
+                        particles.splice(i, 1);
+                        i--;
+                    }
+                } else {
+                    p.y += p.speedY;
+                    p.x += p.speedX + Math.sin(p.swingOffset + p.y * p.swing) * 0.5;
+
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.opacity;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+
+                    if (p.y > canvas.height || p.x < 0 || p.x > canvas.width) {
+                        particles[i] = createParticle(false);
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateParticles);
+        }
+    </script>
+</body>
+</html>
